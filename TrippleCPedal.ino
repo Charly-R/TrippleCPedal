@@ -1,9 +1,3 @@
-#ifdef _BV
-// All cool.
-#else
-#define _BV(bit)   (1 << (bit))
-#endif
-
 #include <ControlChain.h>
 #include <Arduino.h>
 #include <U8g2lib.h>
@@ -19,9 +13,10 @@ ControlChain cc;
 U8G2_ST7920_128X64_1_SW_SPI u8g2(U8G2_R0, 13, 11, 10, 9);
 
 float valFSW1, valFSW2, valFSW3;
-int switchFlag = 0;
 float valEncButton1, valEncButton2;
 float valEncA, valEncB;
+
+// int switchFlag = 0;
 
 Bounce debounceFSW1 = Bounce();
 Bounce debounceFSW2 = Bounce();
@@ -57,6 +52,11 @@ void setup() {
   pinMode(EncSW1, INPUT_PULLUP);
   pinMode(EncSW2, INPUT_PULLUP);
 
+  pinMode(RotEnc1A, INPUT_PULLUP);
+  pinMode(RotEnc1B, INPUT_PULLUP);
+  pinMode(RotEnc2A, INPUT_PULLUP);
+  pinMode(RotEnc2B, INPUT_PULLUP);
+
   //###############################  set switch debouncers   ##########################
   debounceFSW1.attach(FSW1);
   debounceFSW1.interval(debounceDelay);
@@ -75,7 +75,7 @@ void setup() {
 
   //############################### create ControlChain device  #########################
   cc.begin();
-  const char *uri = "https://github.com/charlyrebell/TrippleCPedal/src/TrippleCPedal";
+  const char *uri = "https://github.com/Charly-R/TrippleCPedal";
   cc_device_t *device = cc.newDevice("TrippleCPedal", uri);
 
     //#############################   create switches     ###############################
@@ -182,17 +182,17 @@ void assignment_add(cc_assignment_t *assignment) {
 	// make sure everything starts at the saved position
 	switch (assignment->actuator_id) {
 	case 0:
-		valFSW1 = abs(assignment->value);
+		valFSW1 = assignment->value;
 		toggleLED(LED1, assignment->value);
 		//switchFlag = 1;
 		break;
 	case 1:
-		valFSW2 = abs(assignment->value);
+		valFSW2 = assignment->value;
 		toggleLED(LED2, assignment->value);
 		//switchFlag = 2;
 		break;
 	case 2:
-		valFSW3 = abs(assignment->value);
+		valFSW3 = assignment->value;
 		toggleLED(LED3, assignment->value);
 		//switchFlag = 3;
 	case 3:
@@ -217,24 +217,23 @@ void loop() {
   //debounceEncA.update();
   //debounceEncB.update();
 
-  if (switchFlag != 1) valFSW1 = (float) debounceFSW1.read();
-  if (switchFlag != 2) valFSW2 = (float) debounceFSW2.read();
-  if (switchFlag != 3) valFSW3 = (float) debounceFSW3.read();
+  valFSW1 = (float) debounceFSW1.read();
+  valFSW2 = (float) debounceFSW2.read();
+  valFSW3 = (float) debounceFSW3.read();
   //valEncButton1 = (float) debounceEncA.read();
   //valEncButton2 = (float) debounceEncB.read();
 
   valEncA = -readAndCheckEncoder(encoderA, ENC_MIN, ENC_MAX);
   //valEncB = readAndCheckEncoder(encoderB, ENC_MIN, ENC_MAX);
 
-  char test[8];
+  /*char test[8];
   String encWert = String(valFSW1);
   encWert.toCharArray(test, 8);
-
   u8g2.firstPage();
   do {
 	  u8g2.setFont(u8g2_font_8x13_t_symbols);
-	  u8g2.drawStr(0, 64, "Hias is cool");
-  } while (u8g2.nextPage());
+	  u8g2.drawStr(0, 64, "This is a test");
+  } while (u8g2.nextPage());*/
 
   cc.run();
 }
