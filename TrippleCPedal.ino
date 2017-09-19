@@ -16,6 +16,7 @@ float valFSW1, valFSW2, valFSW3;
 float valEncButton1, valEncButton2;
 float valEncA, valEncB;
 
+bool somethingChanged = true;
 // int switchFlag = 0;
 
 Bounce debounceFSW1 = Bounce();
@@ -175,6 +176,8 @@ void assignment_update(cc_assignment_t *assignment) {
 			break;
 		}
 	}
+
+	somethingChanged = true;
 }
 
 void assignment_add(cc_assignment_t *assignment) {
@@ -204,9 +207,25 @@ void assignment_add(cc_assignment_t *assignment) {
 	default:
 		break;
 	}
+
+	somethingChanged = true;
 }
 
 void assignment_remove(cc_assignment_t *assignment) {
+
+	somethingChanged = true;
+}
+
+void update_display() {
+
+	u8g2.firstPage();
+	do {
+		u8g2.setFont(u8g2_font_8x13_t_symbols);
+		u8g2.drawFrame(0, 0, 128, 64);
+		u8g2.drawFrame(1, 1, 126, 62);
+		u8g2.drawFrame(2, 2, 124, 60);
+	} while (u8g2.nextPage());
+
 }
 
 void loop() {
@@ -226,14 +245,10 @@ void loop() {
   valEncA = -readAndCheckEncoder(encoderA, ENC_MIN, ENC_MAX);
   //valEncB = readAndCheckEncoder(encoderB, ENC_MIN, ENC_MAX);
 
-  /*char test[8];
-  String encWert = String(valFSW1);
-  encWert.toCharArray(test, 8);
-  u8g2.firstPage();
-  do {
-	  u8g2.setFont(u8g2_font_8x13_t_symbols);
-	  u8g2.drawStr(0, 64, "This is a test");
-  } while (u8g2.nextPage());*/
+  /*if (somethingChanged) {
+	  update_display();
+	  somethingChanged = false;
+  }*/
 
   cc.run();
 }
